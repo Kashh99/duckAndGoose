@@ -6,21 +6,33 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger, logLLMInteraction } from "../utils/logger.js";
 
-// Initialize Gemini AI with fallback for missing API key
+// Initialize Gemini AI lazily (only when first used)
 let genAI = null;
 let isGeminiAvailable = false;
+let isInitialized = false;
 
-try {
-  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "your_gemini_api_key_here") {
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    isGeminiAvailable = true;
-    logger.info("Gemini AI initialized successfully");
-  } else {
-    logger.warn("Gemini API key not configured. AI features will be disabled.");
+/**
+ * Initialize Gemini AI if not already initialized
+ */
+const initializeGemini = () => {
+  if (isInitialized) {
+    return;
   }
-} catch (error) {
-  logger.error("Failed to initialize Gemini AI:", error);
-}
+  
+  try {
+    if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "your_gemini_api_key_here") {
+      genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      isGeminiAvailable = true;
+      logger.info("Gemini AI initialized successfully");
+    } else {
+      logger.warn("Gemini API key not configured. AI features will be disabled.");
+    }
+  } catch (error) {
+    logger.error("Failed to initialize Gemini AI:", error);
+  }
+  
+  isInitialized = true;
+};
 
 /**
  * System prompt for NAV analysis
@@ -53,6 +65,9 @@ export const analyzeNAV = async (navData) => {
   try {
     logger.info("Starting NAV analysis with Gemini AI");
 
+    // Initialize Gemini AI if not already initialized
+    initializeGemini();
+
     // Check if Gemini AI is available
     if (!isGeminiAvailable || !genAI) {
       logger.warn("Gemini AI not available, returning fallback analysis");
@@ -81,7 +96,7 @@ To enable AI features:
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `${NAV_ANALYST_PROMPT}
 
@@ -115,12 +130,12 @@ Respond in a clear, professional manner.`;
     const text = response.text();
 
     // Log the interaction for traceability
-    logLLMInteraction("nav_analysis", { navData }, { response: text }, "gemini-pro");
+    logLLMInteraction("nav_analysis", { navData }, { response: text }, "gemini-1.5-flash");
 
     return {
       analysis: text,
       timestamp: new Date().toISOString(),
-      model: "gemini-pro"
+      model: "gemini-1.5-flash"
     };
 
   } catch (error) {
@@ -137,6 +152,9 @@ Respond in a clear, professional manner.`;
 export const reconstructNAV = async (navData) => {
   try {
     logger.info("Starting NAV reconstruction with Gemini AI");
+
+    // Initialize Gemini AI if not already initialized
+    initializeGemini();
 
     // Check if Gemini AI is available
     if (!isGeminiAvailable || !genAI) {
@@ -159,7 +177,7 @@ export const reconstructNAV = async (navData) => {
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `${NAV_ANALYST_PROMPT}
 
@@ -207,12 +225,12 @@ Focus on mathematical accuracy and identify any missing components.`;
     }
 
     // Log the interaction
-    logLLMInteraction("nav_reconstruction", { navData }, { response: parsedResponse }, "gemini-pro");
+    logLLMInteraction("nav_reconstruction", { navData }, { response: parsedResponse }, "gemini-1.5-flash");
 
     return {
       ...parsedResponse,
       timestamp: new Date().toISOString(),
-      model: "gemini-pro"
+      model: "gemini-1.5-flash"
     };
 
   } catch (error) {
@@ -230,6 +248,9 @@ Focus on mathematical accuracy and identify any missing components.`;
 export const compareNAV = async (officialData, reconstructedData) => {
   try {
     logger.info("Starting NAV comparison analysis");
+
+    // Initialize Gemini AI if not already initialized
+    initializeGemini();
 
     // Check if Gemini AI is available
     if (!isGeminiAvailable || !genAI) {
@@ -255,7 +276,7 @@ export const compareNAV = async (officialData, reconstructedData) => {
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `${NAV_ANALYST_PROMPT}
 
@@ -310,13 +331,13 @@ Focus on identifying potential errors, missing data, or suspicious patterns.`;
     logLLMInteraction("nav_comparison", 
       { officialData, reconstructedData }, 
       { response: parsedResponse }, 
-      "gemini-pro"
+      "gemini-1.5-flash"
     );
 
     return {
       ...parsedResponse,
       timestamp: new Date().toISOString(),
-      model: "gemini-pro"
+      model: "gemini-1.5-flash"
     };
 
   } catch (error) {
@@ -333,6 +354,9 @@ Focus on identifying potential errors, missing data, or suspicious patterns.`;
 export const explainNAV = async (navData) => {
   try {
     logger.info("Generating NAV explanation");
+
+    // Initialize Gemini AI if not already initialized
+    initializeGemini();
 
     // Check if Gemini AI is available
     if (!isGeminiAvailable || !genAI) {
@@ -363,7 +387,7 @@ To enable AI features:
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `${NAV_ANALYST_PROMPT}
 
@@ -398,12 +422,12 @@ Write in clear, accessible language suitable for investors and regulators.`;
     const text = response.text();
 
     // Log the interaction
-    logLLMInteraction("nav_explanation", { navData }, { response: text }, "gemini-pro");
+    logLLMInteraction("nav_explanation", { navData }, { response: text }, "gemini-1.5-flash");
 
     return {
       explanation: text,
       timestamp: new Date().toISOString(),
-      model: "gemini-pro"
+      model: "gemini-1.5-flash"
     };
 
   } catch (error) {

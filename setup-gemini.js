@@ -40,7 +40,6 @@ REACT_APP_API_URL=http://localhost:3001/api
 
 # Google Gemini AI Configuration
 GEMINI_API_KEY=AIzaSyD-9tS6dF_8H7YipRpkYlka_v-NQeqY9ik
-
 # Logging Configuration
 LOG_LEVEL=info
 LOG_FILE_PATH=./logs

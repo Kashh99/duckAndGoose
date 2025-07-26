@@ -8,12 +8,13 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+
+// Load environment variables FIRST, before any other imports
+dotenv.config();
+
 import { logger } from "./utils/logger.js";
 import uploadRoutes from "./routes/upload.js";
 import analysisRoutes from "./routes/analysis.js";
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -76,6 +77,8 @@ app.use("*", (req, res) => {
 app.listen(PORT, () => {
   logger.info(`Shadow NAV Sentinel server running on port ${PORT}`);
   logger.info(`Health check available at http://localhost:${PORT}/health`);
+  logger.info(`Environment check - GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? "Set" : "Not set"}`);
+  logger.info(`Environment check - NODE_ENV: ${process.env.NODE_ENV}`);
 });
 
 export default app; 
