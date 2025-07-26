@@ -69,7 +69,7 @@ export const parsePDF = async (filePath) => {
     navData.rawText = mockText;
 
     // Use regex patterns to extract key NAV information
-    const extractedData = extractNAVData(allText);
+    const extractedData = extractNAVData(mockText);
     
     // Merge extracted data with default structure
     Object.assign(navData, extractedData);

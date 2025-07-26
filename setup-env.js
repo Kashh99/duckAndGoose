@@ -45,7 +45,7 @@ REACT_APP_API_URL=http://localhost:${port}/api
 
 # Google Gemini AI Configuration
 # Get your API key from: https://makersuite.google.com/app/apikey
-GEMINI_API_KEY=${geminiKey || "your_gemini_api_key_here"}
+GEMINI_API_KEY=${geminiKey || "AIzaSyD-9tS6dF_8H7YipRpkYlka_v-NQeqY9ik"}
 
 # Database Configuration (for future enhancements)
 # Uncomment and configure when adding database support

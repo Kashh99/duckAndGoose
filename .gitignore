@@ -76,7 +76,9 @@ dist
 
 # Gatsby files
 .cache/
-public
+
+# Frontend public files (keep these)
+!src/frontend/public/
 
 # Storybook build outputs
 .out
